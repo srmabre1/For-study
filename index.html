@@ -2,147 +2,123 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Text to Video Reel</title>
+<title>Text to Character Video</title>
 
 <style>
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:Arial, Helvetica, sans-serif;
-}
-
 body{
-  background:black;
+  margin:0;
+  background:#000;
   color:white;
-  height:100vh;
+  font-family:Arial, sans-serif;
   display:flex;
   flex-direction:column;
-}
-
-.controls{
-  padding:10px;
-  background:#111;
+  height:100vh;
 }
 
 textarea{
   width:100%;
   height:120px;
-  background:black;
+  background:#111;
   color:#00ffcc;
-  border:1px solid #333;
+  border:none;
   padding:10px;
   font-size:14px;
-  resize:none;
 }
 
 button{
-  width:100%;
   padding:12px;
-  margin-top:8px;
   background:#00ffcc;
   border:none;
   font-size:16px;
   cursor:pointer;
 }
 
-.video{
+.stage{
   flex:1;
   display:flex;
+  flex-direction:column;
   justify-content:center;
   align-items:center;
-  background:black;
+  position:relative;
 }
 
-.screen{
-  width:360px;
-  height:640px; /* 9:16 reel */
-  border:3px solid #00ffcc;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+.character{
+  width:120px;
+  height:120px;
+  border-radius:50%;
+  background:#ffcc00;
+  position:relative;
+  animation:bounce 1s infinite alternate;
+}
+
+.character::after{
+  content:"🙂";
+  font-size:60px;
+  position:absolute;
+  top:25px;
+  left:30px;
+}
+
+@keyframes bounce{
+  from{ transform:translateY(0); }
+  to{ transform:translateY(-15px); }
+}
+
+.dialog{
+  margin-top:20px;
+  padding:15px 20px;
+  background:#111;
+  border-radius:10px;
+  font-size:22px;
+  min-height:60px;
   text-align:center;
-  padding:25px;
-  font-size:28px;
-  line-height:1.4;
-  animation:zoomFade 1s ease;
+  animation:fade 0.5s;
 }
 
-@keyframes zoomFade{
-  from{
-    opacity:0;
-    transform:scale(0.9);
-  }
-  to{
-    opacity:1;
-    transform:scale(1);
-  }
+@keyframes fade{
+  from{opacity:0;}
+  to{opacity:1;}
 }
 </style>
 </head>
 
 <body>
 
-<div class="controls">
-  <textarea id="textInput" placeholder="Each line = one scene"></textarea>
-  <button onclick="startVideo()">▶ Play Reel</button>
+<textarea id="text">
+Hello, I am your animated character
+Each line becomes dialogue
+This feels like a video
+Made using only web
+</textarea>
+
+<button onclick="play()">▶ Play</button>
+
+<div class="stage">
+  <div class="character"></div>
+  <div class="dialog" id="dialog">Ready to speak...</div>
 </div>
 
-<div class="video">
-  <div class="screen" id="screen">
-    Paste text & press Play
-  </div>
-</div>
-
-<!-- Background Music -->
-<audio id="bgMusic" loop>
-  <source src="https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Scott_Holmes_Music/Corporate__Motivational_Music/Scott_Holmes_Music_-_01_-_Upbeat_Party.mp3">
+<audio id="music" loop>
+  <source src="https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Scott_Holmes_Music/Happy_Music/Scott_Holmes_Music_-_01_-_Happy_Whistle.mp3">
 </audio>
 
 <script>
 let lines=[];
-let lineIndex=0;
-let charIndex=0;
+let i=0;
 
-function startVideo(){
-  const text=document.getElementById("textInput").value.trim();
-  if(!text) return;
-
-  // Fullscreen
-  document.documentElement.requestFullscreen().catch(()=>{});
-
-  // Music
-  document.getElementById("bgMusic").play();
-
-  lines=text.split(/\n+/);
-  lineIndex=0;
-  playLine();
+function play(){
+  lines=document.getElementById("text").value.split(/\n+/);
+  i=0;
+  document.getElementById("music").play();
+  nextLine();
 }
 
-function playLine(){
-  if(lineIndex>=lines.length) return;
-
-  charIndex=0;
-  const screen=document.getElementById("screen");
-  screen.textContent="";
-  screen.style.animation="none";
-  screen.offsetHeight;
-  screen.style.animation="zoomFade 1s ease";
-  typeChar();
-}
-
-function typeChar(){
-  const screen=document.getElementById("screen");
-  const line=lines[lineIndex];
-
-  if(charIndex<line.length){
-    screen.textContent+=line.charAt(charIndex);
-    charIndex++;
-    setTimeout(typeChar,50);
-  }else{
-    lineIndex++;
-    setTimeout(playLine,1800);
-  }
+function nextLine(){
+  if(i>=lines.length) return;
+  const dialog=document.getElementById("dialog");
+  dialog.textContent=lines[i];
+  i++;
+  setTimeout(nextLine,2000);
 }
 </script>
 
